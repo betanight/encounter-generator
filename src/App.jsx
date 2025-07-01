@@ -117,11 +117,14 @@ function formatSave(val, stat) {
 function StatblockModal({ monster, onClose }) {
   if (!monster) return null;
   const m = monster.monster;
+  // Prefer desc, fallback to description, otherwise empty
+  const description = m.desc || m.description || '';
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose}>×</button>
         <h2>{m.name}</h2>
+        {description && <div className="monster-desc">{description}</div>}
         <div><strong>Type:</strong> {m.type}</div>
         <div><strong>CR:</strong> {m.cr}</div>
         <div><strong>HP:</strong> {m.hit_points} ({m.hit_dice})</div>
