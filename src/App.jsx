@@ -263,6 +263,7 @@ function App() {
 
     // Try up to 1000 times to find a valid encounter
     let best = null;
+    console.log(`Attempting to generate encounter with ${pool.length} monsters available`);
     for (let tries = 0; tries < 1000; tries++) {
       let result = [];
       let count = Math.floor(Math.random() * maxMonsters) + 1;
@@ -329,6 +330,37 @@ function App() {
         best = result;
       }
     }
+    
+    // If no encounter found, try with relaxed constraints
+    if (!best || best.length === 0) {
+      console.log("No encounter found with strict constraints, trying with relaxed constraints...");
+      for (let tries = 0; tries < 500; tries++) {
+        let result = [];
+        let count = Math.floor(Math.random() * 3) + 1; // Simpler monster count
+        let used = new Set();
+        for (let i = 0; i < count; i++) {
+          let idx = Math.floor(Math.random() * pool.length);
+          let m = pool[idx];
+          used.add(idx);
+          result.push({
+            name: m.name,
+            quantity: Math.floor(Math.random() * 2) + 1, // Simpler quantity
+            monster: m
+          });
+        }
+        
+        const adjXP = getAdjustedXP(result);
+        if (adjXP >= targetXP * 0.5 && adjXP <= targetXP * 2.0) { // Much wider range
+          best = result;
+          console.log("Found encounter with relaxed constraints");
+          break;
+        }
+        if (!best || Math.abs(getAdjustedXP(best) - targetXP) > Math.abs(adjXP - targetXP)) {
+          best = result;
+        }
+      }
+    }
+    
     setEncounter(best);
     
     // Prepare summary with new calculation
