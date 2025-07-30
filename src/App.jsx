@@ -413,7 +413,12 @@ function App() {
           <div className="monster-blocks">
             {encounter.map((m, i) => (
               <div key={i} className="monster-row block-card">
-                <span className="monster-name">{m.name}</span>
+                <span className="monster-name">
+                  {m.name}
+                  {Array.isArray(m.monster.legendary_actions) && m.monster.legendary_actions.length > 0 && (
+                    <span className="legendary-star">⭐</span>
+                  )}
+                </span>
                 <span className="monster-qty">×{m.quantity}</span>
                 <button className="statblock-btn" onClick={() => setShowStatblock(m)}>Statblock</button>
               </div>

@@ -135,6 +135,12 @@ h1 {
   font-weight: 600;
   letter-spacing: 0.5px;
 }
+
+.legendary-star {
+  color: #3a7afe;
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
 .monster-qty {
   color: #3a7afe;
   font-weight: 700;
