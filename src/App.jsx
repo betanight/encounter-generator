@@ -202,11 +202,17 @@ function App() {
   }, []);
 
   function generateEncounter() {
-    const pool = monsters.filter(m => m.type === selectedType);
-    if (pool.length === 0) {
-      setEncounter([]);
-      setSummary(null);
-      return;
+    let pool = monsters.filter(m => m.type === selectedType);
+    
+    // For deadly encounters, only use legendary creatures
+    const isLegendary = m => Array.isArray(m.legendary_actions) && m.legendary_actions.length > 0;
+    if (difficulty === 'deadly') {
+      pool = pool.filter(isLegendary);
+      if (pool.length === 0) {
+        setEncounter([]);
+        setSummary(null);
+        return;
+      }
     }
     
     const difficultyRange = getDifficultyRange(partyLevel, partySize);
@@ -221,7 +227,6 @@ function App() {
     }
 
     // Legendary monster rules
-    const isLegendary = m => Array.isArray(m.legendary_actions) && m.legendary_actions.length > 0;
     let maxLegendaries = 0;
     if (partyLevel > 15) {
       // 20% chance for 1 legendary, 1% for 2
