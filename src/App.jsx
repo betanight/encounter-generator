@@ -212,12 +212,12 @@ function App() {
     const difficultyRange = getDifficultyRange(partyLevel, partySize);
     const targetXP = difficultyRange[difficulty];
 
-    // Determine monster count with 90% chance for 1-2 monsters, 10% for 3+
+    // Determine monster count with 85% chance for 1-2 monsters, 15% for 3+
     let maxMonsters;
-    if (Math.random() < 0.9) {
+    if (Math.random() < 0.85) {
       maxMonsters = 2;
     } else {
-      maxMonsters = partyLevel >= 8 ? 8 : 5;
+      maxMonsters = partyLevel >= 8 ? 6 : 4;
     }
 
     // Legendary monster rules
@@ -255,14 +255,46 @@ function App() {
           (isLegendary(m) && attempts < 20)
         );
         used.add(idx);
+        // Calculate quantity with much more aggressive limits
+        let maxQuantity;
+        if (count === 1) {
+          maxQuantity = 3; // Single monster type can have up to 3
+        } else if (count === 2) {
+          maxQuantity = 2; // Two monster types, each up to 2
+        } else {
+          maxQuantity = 1; // Three or more types, each up to 1
+        }
+        
+        // Much more aggressive weighted random
+        let quantity;
+        const rand = Math.random();
+        if (rand < 0.7) {
+          // 70% chance for 1
+          quantity = 1;
+        } else if (rand < 0.9) {
+          // 20% chance for 2
+          quantity = 2;
+        } else {
+          // 10% chance for maxQuantity
+          quantity = maxQuantity;
+        }
+        
         result.push({
           name: m.name,
-          quantity: Math.floor(Math.random() * 8) + 1,
+          quantity: quantity,
           monster: m
         });
       }
       // Don't allow more than maxLegendaries
       if (result.filter(x => isLegendary(x.monster)).length > maxLegendaries) continue;
+      
+      // Check total monster count to avoid excessive encounters
+      const totalMonsterCount = result.reduce((sum, m) => sum + m.quantity, 0);
+      if (totalMonsterCount > 6) continue; // Cap at 6 total monsters
+      
+      // Prefer encounters with fewer total monsters (80% chance to reject if > 3)
+      if (totalMonsterCount > 3 && Math.random() < 0.8) continue;
+      
       const adjXP = getAdjustedXP(result);
       if (adjXP >= targetXP * 0.9 && adjXP <= targetXP * 1.1) {
         best = result;
