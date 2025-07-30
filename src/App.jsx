@@ -213,6 +213,22 @@ function App() {
         setSummary(null);
         return;
       }
+      
+      // For very low level parties, check if any legendary creatures are affordable
+      const difficultyRange = getDifficultyRange(partyLevel, partySize);
+      const targetXP = difficultyRange[difficulty];
+      
+      // Check if even the lowest CR legendary creature would be too expensive
+      const lowestCRLegendary = pool.reduce((lowest, m) => {
+        const xp = getMonsterXP(m.cr);
+        return xp < lowest ? xp : lowest;
+      }, Infinity);
+      
+      if (lowestCRLegendary > targetXP * 1.5) {
+        // If even the cheapest legendary is too expensive, fall back to regular creatures
+        pool = monsters.filter(m => m.type === selectedType);
+        console.log(`Note: No affordable legendary creatures found for ${partyLevel}th level party. Using regular creatures for deadly encounter.`);
+      }
     }
     
     const difficultyRange = getDifficultyRange(partyLevel, partySize);
@@ -313,23 +329,27 @@ function App() {
     setEncounter(best);
     
     // Prepare summary with new calculation
-    const totalXP = best.reduce((sum, m) => sum + getMonsterXP(m.monster.cr) * m.quantity, 0);
-    const adjXP = getAdjustedXP(best);
-    const partyTotalXP = characterXPByLevel[partyLevel] * partySize;
-    const actualDifficulty = calculateDifficulty(partyLevel, partySize, adjXP);
-    
-    setSummary({
-      partySize,
-      partyLevel,
-      partyTotalXP,
-      difficulty,
-      targetXP,
-      totalXP,
-      adjXP,
-      monsterCount: best.reduce((sum, m) => sum + m.quantity, 0),
-      actualDifficulty,
-      difficultyRange
-    });
+    if (best && best.length > 0) {
+      const totalXP = best.reduce((sum, m) => sum + getMonsterXP(m.monster.cr) * m.quantity, 0);
+      const adjXP = getAdjustedXP(best);
+      const partyTotalXP = characterXPByLevel[partyLevel] * partySize;
+      const actualDifficulty = calculateDifficulty(partyLevel, partySize, adjXP);
+      
+      setSummary({
+        partySize,
+        partyLevel,
+        partyTotalXP,
+        difficulty,
+        targetXP,
+        totalXP,
+        adjXP,
+        monsterCount: best.reduce((sum, m) => sum + m.quantity, 0),
+        actualDifficulty,
+        difficultyRange
+      });
+    } else {
+      setSummary(null);
+    }
   }
 
   // Legend explanations
