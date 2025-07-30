@@ -321,7 +321,7 @@ function App() {
       if (totalMonsterCount > 3 && Math.random() < 0.8) continue;
       
       const adjXP = getAdjustedXP(result);
-      if (adjXP >= targetXP * 0.9 && adjXP <= targetXP * 1.1) {
+      if (adjXP >= targetXP * 0.8 && adjXP <= targetXP * 1.3) {
         best = result;
         break;
       }
@@ -350,7 +350,7 @@ function App() {
         }
         
         const adjXP = getAdjustedXP(result);
-        if (adjXP >= targetXP * 0.5 && adjXP <= targetXP * 2.0) { // Much wider range
+        if (adjXP >= targetXP * 0.8 && adjXP <= targetXP * 1.5) { // More reasonable range for deadly
           best = result;
           console.log("Found encounter with relaxed constraints");
           break;
