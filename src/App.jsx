@@ -204,30 +204,33 @@ function App() {
   function generateEncounter() {
     let pool = monsters.filter(m => m.type === selectedType);
     
-    // For deadly encounters, only use legendary creatures
+    // For deadly encounters, try to use legendary creatures
     const isLegendary = m => Array.isArray(m.legendary_actions) && m.legendary_actions.length > 0;
+    
     if (difficulty === 'deadly') {
-      pool = pool.filter(isLegendary);
-      if (pool.length === 0) {
-        setEncounter([]);
-        setSummary(null);
-        return;
-      }
+      const legendaryPool = pool.filter(isLegendary);
       
-      // For very low level parties, check if any legendary creatures are affordable
-      const difficultyRange = getDifficultyRange(partyLevel, partySize);
-      const targetXP = difficultyRange[difficulty];
-      
-      // Check if even the lowest CR legendary creature would be too expensive
-      const lowestCRLegendary = pool.reduce((lowest, m) => {
-        const xp = getMonsterXP(m.cr);
-        return xp < lowest ? xp : lowest;
-      }, Infinity);
-      
-      if (lowestCRLegendary > targetXP * 1.5) {
-        // If even the cheapest legendary is too expensive, fall back to regular creatures
-        pool = monsters.filter(m => m.type === selectedType);
-        console.log(`Note: No affordable legendary creatures found for ${partyLevel}th level party. Using regular creatures for deadly encounter.`);
+      if (legendaryPool.length > 0) {
+        // Check if any legendary creatures are affordable
+        const difficultyRange = getDifficultyRange(partyLevel, partySize);
+        const targetXP = difficultyRange[difficulty];
+        
+        // Check if even the lowest CR legendary creature would be too expensive
+        const lowestCRLegendary = legendaryPool.reduce((lowest, m) => {
+          const xp = getMonsterXP(m.cr);
+          return xp < lowest ? xp : lowest;
+        }, Infinity);
+        
+                 if (lowestCRLegendary <= targetXP * 1.5) {
+           // Use legendary creatures if they're affordable
+           pool = legendaryPool;
+         } else {
+          // If legendary creatures are too expensive, fall back to regular creatures
+          console.log(`Note: No affordable legendary creatures found for ${partyLevel}th level party. Using regular creatures for deadly encounter.`);
+        }
+      } else {
+        // No legendary creatures available, use regular creatures
+        console.log(`Note: No legendary creatures found for ${selectedType}. Using regular creatures for deadly encounter.`);
       }
     }
     
