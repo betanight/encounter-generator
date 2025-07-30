@@ -245,30 +245,7 @@ function App() {
       maxMonsters = partyLevel >= 8 ? 6 : 4;
     }
 
-    // Legendary monster rules
-    let maxLegendaries = 0;
-    if (partyLevel > 15) {
-      // 10% chance for 3 legendaries, 20% chance for 2, 30% chance for 1
-      if (Math.random() < 0.1) {
-        maxLegendaries = 3;
-      } else if (Math.random() < 0.3) {
-        maxLegendaries = 2;
-      } else if (Math.random() < 0.6) {
-        maxLegendaries = 1;
-      }
-    } else if (partyLevel > 10) {
-      // 5% chance for 2 legendaries, 20% chance for 1
-      if (Math.random() < 0.05) {
-        maxLegendaries = 2;
-      } else if (Math.random() < 0.25) {
-        maxLegendaries = 1;
-      }
-    } else {
-      // 10% chance for 1 legendary
-      if (Math.random() < 0.1) {
-        maxLegendaries = 1;
-      }
-    }
+    // Legendary monster rules - hard cap at 3 total legendary creatures
 
     // Try up to 1000 times to find a valid encounter
     let best = null;
@@ -319,11 +296,11 @@ function App() {
           monster: m
         });
       }
-      // Don't allow more than maxLegendaries total legendary creatures
+      // Don't allow more than maxLegendaries total individual legendary creatures
       const totalLegendaryCount = result.reduce((sum, m) => 
         sum + (isLegendary(m.monster) ? m.quantity : 0), 0
       );
-      if (totalLegendaryCount > maxLegendaries) continue;
+      if (totalLegendaryCount > 3) continue; // Hard cap at 3 total legendary creatures
       
       // Check total monster count to avoid excessive encounters
       const totalMonsterCount = result.reduce((sum, m) => sum + m.quantity, 0);
