@@ -429,21 +429,23 @@ function App() {
               <div><strong>Monster Count:</strong> {summary.monsterCount}</div>
             </div>
           )}
-          {encounter.length === 0 && <p>No encounter generated yet.</p>}
-          <div className="monster-blocks">
-            {encounter.map((m, i) => (
-              <div key={i} className="monster-row block-card">
-                <span className="monster-name">
-                  {m.name}
-                  {Array.isArray(m.monster.legendary_actions) && m.monster.legendary_actions.length > 0 && (
-                    <span className="legendary-star">⭐</span>
-                  )}
-                </span>
-                <span className="monster-qty">×{m.quantity}</span>
-                <button className="statblock-btn" onClick={() => setShowStatblock(m)}>Statblock</button>
-              </div>
-            ))}
-          </div>
+          {(!encounter || encounter.length === 0) && <p>No encounter generated yet.</p>}
+          {encounter && encounter.length > 0 && (
+            <div className="monster-blocks">
+              {encounter.map((m, i) => (
+                <div key={i} className="monster-row block-card">
+                  <span className="monster-name">
+                    {m.name}
+                    {Array.isArray(m.monster.legendary_actions) && m.monster.legendary_actions.length > 0 && (
+                      <span className="legendary-star">⭐</span>
+                    )}
+                  </span>
+                  <span className="monster-qty">×{m.quantity}</span>
+                  <button className="statblock-btn" onClick={() => setShowStatblock(m)}>Statblock</button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <StatblockModal monster={showStatblock} onClose={() => setShowStatblock(null)} />
       </div>
